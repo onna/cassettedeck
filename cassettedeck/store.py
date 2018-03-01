@@ -1,4 +1,3 @@
-from vcr.errors import UnhandledHTTPRequestError
 from aiohttp import ClientResponse
 from aiohttp import hdrs
 from aiohttp import StreamReader
@@ -6,10 +5,10 @@ from copy import deepcopy
 from datetime import datetime
 from datetime import timedelta
 from multidict import CIMultiDict
-from vcr.errors import UnhandledHTTPRequestError
-from vcr.matchers import method
-from vcr.matchers import query
-from vcr.matchers import uri
+
+from matchers import method
+from matchers import query
+from matchers import uri
 from yarl import URL
 
 import aiohttp
@@ -19,7 +18,10 @@ import jwt
 import logging
 import os.path
 import uuid
-import vcr
+
+from cassette import UnhandledHTTPRequestError
+from cassette import Cassette
+
 
 rabbitmq_endpoint = "http://rabbitmq-front.rabbitmq.svc.cluster.local:8081/"  # noqa
 messaging_url = 'http://api.userapi.svc.cluster.local:6543/messaging'  # noqa
@@ -51,7 +53,7 @@ class CassetteStore:
         # Per-host cassettes
         name = URL(url).host
         path = os.path.join(self.folder, name)
-        cassette = vcr.cassette.Cassette(path, match_on=(uri, method, query))
+        cassette = Cassette(path, match_on=(uri, method, query))
         cassette._load()
         return cassette
 
@@ -77,7 +79,7 @@ class CassetteStore:
             print(f'STORING request: {url}')
 
             # Create the request object
-            request = vcr.request.Request(method, url, data, headers)
+            request = Request(method, url, data, headers)
 
             # Check if it's text
             try:
@@ -88,8 +90,8 @@ class CassetteStore:
                 data = await response.read()
                 data_type = 'binary'
 
-            # Create the vcr response as it will be stored
-            vcr_response = {
+            # Create the response as it will be stored
+            response = {
                 'status': {
                     'code': response.status,
                     'message': response.reason,
@@ -103,7 +105,7 @@ class CassetteStore:
             }
             # Store it and save
             cassette = self.load_cassette(url)
-            cassette.append(request, vcr_response)
+            cassette.append(request, response)
             cassette._save()
 
     def build_response(self, method, url, params, data, headers):
@@ -117,7 +119,7 @@ class CassetteStore:
                 return None
 
             # Go check see if response is in cassette
-            request = vcr.request.Request(method, url, data, headers)
+            request = Request(method, url, data, headers)
             cassette = self.load_cassette(url)
             resp_json = cassette.play_response(request)
         except UnhandledHTTPRequestError:

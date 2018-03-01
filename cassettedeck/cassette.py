@@ -1,0 +1,2 @@
+class UnhandledHTTPRequestError(Exception):
+    pass
