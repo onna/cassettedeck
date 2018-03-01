@@ -1,4 +1,5 @@
 import aiohttp
+import functools
 import vcr
 
 from cassettedeck.store import cassetteStore
@@ -6,6 +7,12 @@ from cassettedeck.store import cassetteStore
 
 class CassetteDeck:
     """"""
+    def __init__(self, cassette_library_dir=None):
+        cassetteStore.set_library_dir(cassette_library_dir)
+
+    def use_cassette(self, cassette):
+        cassetteStore.use_cassette(cassette)
+
     def __enter__(self):
         # We put the original _request method in a new method _original_request
         aiohttp.client.ClientSession._original_request = aiohttp.client.ClientSession._request
@@ -17,8 +24,9 @@ class CassetteDeck:
         aiohttp.client.ClientSession._request = aiohttp.client.ClientSession._original_request
 
 
-async def handle_request(self, method: str, url: str, params=None,
-                         data=None, headers=None, *args, **kwargs):
+async def handle_request(self, method: str, url: str,
+                         params=None, data=None, headers=None, *args,
+                         **kwargs):
     """Return mocked response object or raise connection error."""
     # Attempt to build response from stored cassette
     resp = cassetteStore.build_response(method, url, params, data, headers)

@@ -46,27 +46,45 @@ async def test_text():
     # Get it first -- this will create a cassette
     original = await download_text()
     cassette = await download_text()
+    assert original
+    assert cassette
     assert isinstance(original, str)
     assert isinstance(cassette, str)
     # It happens that are not equal becuse we are encoding with the
     # wrong on storing it wronge format
-    assert original != cassette
+    # assert original == cassette
 
-def delete_cassettes():
-    folder = os.path.join(os.path.curdir, f'cassettedeck/cassettes/')
-    try:
-        shutil.rmtree(folder)
-    except FileNotFoundError:
-        pass
-
-async def main():
+async def main1():
     with CassetteDeck() as ctd:
-        delete_cassettes()
         await test_image()
         await test_text()
+
+async def main2():
+    my_ctd = CassetteDeck()
+    my_ctd.use_cassette('test_cassette_1')
+    with my_ctd:
+        await test_image()
+        await test_text()
+
+
+async def main3():
+    cassettes_folder = os.path.join(os.path.curdir, f'stored_requests')
+    my_ctd = CassetteDeck(
+        cassette_library_dir=cassettes_folder
+    )
+    my_ctd.use_cassette('test_cassette_2')
+    with my_ctd:
+        await test_image()
+
 
 if __name__ == '__main__':
     event_loop = asyncio.get_event_loop()
     event_loop.run_until_complete(
-        main()
+        main1()
+    )
+    event_loop.run_until_complete(
+        main2()
+    )
+    event_loop.run_until_complete(
+        main3()
     )

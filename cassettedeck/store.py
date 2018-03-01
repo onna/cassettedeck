@@ -25,9 +25,12 @@ rabbitmq_endpoint = "http://rabbitmq-front.rabbitmq.svc.cluster.local:8081/"  # 
 messaging_url = 'http://api.userapi.svc.cluster.local:6543/messaging'  # noqa
 oauth_server = 'http://localhost:6543/oauth/'
 
+default_library = os.path.join(os.path.dirname(__file__), 'cassettes/')
 
-class CassetteStore:
-    def __init__(self, ignored=None):
+
+class CassetteStore(object):
+    def __init__(self, cassette=None, ignored=None):
+        self._cassette = cassette
         # Default ignore
         self.ignore = {
             'localhost',
@@ -40,24 +43,27 @@ class CassetteStore:
         if ignored:
             self.add_ignored_host(ignored)
         # Cassettes folder
-        self.folder = os.path.join(os.path.dirname(__file__), 'cassettes/')
+        self.library_dir = default_library
 
     def add_ignored_host(self, host):
         if type(host) != set:
             host = {host}
         self.ignore.update(host)
 
+    def set_library_dir(self, library_dir):
+        if library_dir:
+            self.library_dir = library_dir
+
     def load_cassette(self, url):
-        # Per-host cassettes
-        name = URL(url).host
-        path = os.path.join(self.folder, name)
+        # Per-host cassettes unless self._cassette is specified
+        name = self._cassette or URL(url).host
+        path = os.path.join(self.library_dir, name)
         cassette = vcr.cassette.Cassette(path, match_on=(uri, method, query))
         cassette._load()
         return cassette
 
-    def __call__(self):
-        # return self.__cassette
-        pass
+    def use_cassette(self, cassette=None):
+        self._cassette = cassette
 
     def skip(self, url):
         for ignore in self.ignore:
@@ -74,8 +80,6 @@ class CassetteStore:
 
         # Only store those we don't skip
         if not self.skip(url):
-            print(f'STORING request: {url}')
-
             # Create the request object
             request = vcr.request.Request(method, url, data, headers)
 
