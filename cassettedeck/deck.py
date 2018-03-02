@@ -1,5 +1,4 @@
 import aiohttp
-import functools
 import vcr
 
 from cassettedeck.store import cassetteStore

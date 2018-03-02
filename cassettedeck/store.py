@@ -1,10 +1,3 @@
-from vcr.errors import UnhandledHTTPRequestError
-from aiohttp import ClientResponse
-from aiohttp import hdrs
-from aiohttp import StreamReader
-from copy import deepcopy
-from datetime import datetime
-from datetime import timedelta
 from multidict import CIMultiDict
 from vcr.errors import UnhandledHTTPRequestError
 from vcr.matchers import method
@@ -12,13 +5,8 @@ from vcr.matchers import query
 from vcr.matchers import uri
 from yarl import URL
 
-import aiohttp
 import collections
-import json
-import jwt
-import logging
 import os.path
-import uuid
 import vcr
 
 rabbitmq_endpoint = "http://rabbitmq-front.rabbitmq.svc.cluster.local:8081/"  # noqa
