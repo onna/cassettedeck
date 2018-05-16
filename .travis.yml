@@ -1,0 +1,27 @@
+language: python
+python:
+- 3.6
+sudo: required
+services:
+  - docker
+env:
+- CHANGE_MINIKUBE_NONE_USER=true DATABASE=postgres TEST_HIVE_IMAGE=hive_test_image
+install:
+- pip install -r requirements.txt
+- pip install -r test-requirements.txt
+- python setup.py develop
+script:
+- flake8 cassettedeck --config=setup.cfg
+- pytest --cov=cassettedeck --cov-report=xml cassettedeck -s --tb=native
+after_success:
+- codecov
+- rm -rf *.egg-info
+deploy:
+  skip_cleanup: true
+  #provider: pypi
+  #user: ramon.nb
+  #password:
+  #  secure: abc
+  on:
+    tags: true
+  distributions: sdist bdist_wheel

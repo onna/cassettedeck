@@ -1,0 +1,15 @@
+include *.html
+include *.md
+include *.py
+include *.txt
+include VERSION
+include Dockerfile
+include Jenkinsfile
+recursive-include docker *.py
+recursive-include docker *.sh
+recursive-include docker *.txt
+recursive-include example *.gz
+recursive-include example *.json
+recursive-include example *.md
+recursive-include example *.py
+recursive-include example *.txt
