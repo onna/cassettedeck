@@ -4,43 +4,49 @@ from vcr.matchers import method
 from vcr.matchers import query
 from vcr.matchers import uri
 from yarl import URL
+from aiohttp import ClientResponse, StreamReader
+from aiohttp.helpers import TimerNoop
+from unittest.mock import Mock
 
 import collections
 import os.path
 import vcr
 
-rabbitmq_endpoint = "http://rabbitmq-front.rabbitmq.svc.cluster.local:8081/"  # noqa
-messaging_url = 'http://api.userapi.svc.cluster.local:6543/messaging'  # noqa
-oauth_server = 'http://localhost:6543/oauth/'
-
 default_library = os.path.join(os.path.dirname(__file__), 'cassettes/')
 
 
 class CassetteStore(object):
-    def __init__(self, cassette=None, ignored=None):
-        self._cassette = cassette
+
+    def __init__(self, cassette_library_dir=None, ignore_hosts=(),
+                 ignore_localhost=False, record_mode='once'):
+        self._library_dir = None
+        self._cassette = None
+
+        self.library_dir = cassette_library_dir
+        self.record_mode = record_mode
+
         # Default ignore
-        self.ignore = {
-            'localhost',
-            '127.0.0.1',
-            URL(oauth_server).host,
-            URL(messaging_url).host,
-            URL(rabbitmq_endpoint).host
-        }
+        self.ignore = set()
+
         # Add other ignored hosts
-        if ignored:
-            self.add_ignored_host(ignored)
-        # Cassettes folder
-        self.library_dir = default_library
+        if ignore_localhost:
+            self.add_ignored_host({'localhost', '127.0.0.1'})
+
+        if ignore_hosts:
+            self.add_ignored_host(set(ignore_hosts))
 
     def add_ignored_host(self, host):
         if type(host) != set:
             host = {host}
         self.ignore.update(host)
 
-    def set_library_dir(self, library_dir):
-        if library_dir:
-            self.library_dir = library_dir
+    @property
+    def library_dir(self):
+        return self._library_dir or default_library
+
+    @library_dir.setter
+    def library_dir(self, library_dir):
+        self._library_dir = library_dir
 
     def load_cassette(self, url):
         # Per-host cassettes unless self._cassette is specified
@@ -71,14 +77,8 @@ class CassetteStore(object):
             # Create the request object
             request = vcr.request.Request(method, url, data, headers)
 
-            # Check if it's text
-            try:
-                data = await response.text()
-                data_type = 'text'
-            # Try with reading as a binary
-            except UnicodeDecodeError:
-                data = await response.read()
-                data_type = 'binary'
+            data_type = 'binary'
+            data = await response.read()
 
             # Create the vcr response as it will be stored
             vcr_response = {
@@ -119,14 +119,19 @@ class CassetteStore(object):
         # Response was found in cassette
         cassette.play_counts = collections.Counter()
         # Create the response
-        resp = ClientResponse(method, URL(url))
+        resp = ClientResponse(method,
+                              URL(url),
+                              request_info=Mock(),
+                              writer=Mock(),
+                              continue100=None,
+                              timer=TimerNoop(),
+                              traces=[],
+                              loop=Mock(),
+                              session=Mock(),
+                              auto_decompress=False)
 
         # Replicate status code and reason
         resp.status = resp_json['status']['code']
-
-        # Get the data
-        data = resp_json['body']['data']
-        data_type = resp_json['body']['type']
 
         # Set default plain/text if no Content-Type
         try:
@@ -136,13 +141,12 @@ class CassetteStore(object):
 
         # Set headers and content
         resp.headers = CIMultiDict(resp_json['headers'])
-        resp.content = StreamReader()
-        if isinstance(data, str):
-            data = data.encode('utf8')
+        resp.content = StreamReader(Mock())
+
+        # Get the data
+        data = resp_json['body']['data']
+
         resp.content.feed_data(data)
         resp.content.feed_eof()
-        # Return recorded response
-        return resp
 
-# Declare the singleton
-cassetteStore = CassetteStore()
+        return resp

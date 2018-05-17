@@ -1,0 +1,24 @@
+language: python
+python:
+- 3.6
+sudo: required
+services:
+- docker
+install:
+- pip install -r test-requirements.txt
+- python setup.py develop
+script:
+- pytest cassettedeck/tests/ -x -s --log-cli-level=info
+- flake8 cassettedeck --config=setup.cfg
+after_success:
+- codecov
+- rm -rf *.egg-info
+deploy:
+  skip_cleanup: true
+  provider: pypi
+  user: masipcat
+  password:
+    secure: MCCaRz+VvXSjFCH9NkrjUFt22oA+Bha5cx75SAZBF9pWSkcwlqAg2InCGCI43+NQCByS/rBDoOOi6ThxvYzecblm0n0xH2yzuivDOlf3p7wsgSJ5nj5fe2CjNyWlm8ETD01igEk9j+35dMa5TtyhAeev9PWR9ee3hn5ERSvEV3JnpOrI3mMOpwOd/qfaAuMu8GrqEpJ/G5Pk2+TgLAGsWvQXc7Y7fgH/1aEdmvReKje5b+siJmNDDjyqbD2nevwc4b2rhEcYZbAZ2HL1JqCSwwSneGT8ZQz/nOjsONue7/krL4+U2A2iJA1o7VOEVgJ9ay/o251wa4MOAWyOq5d5L/GgWOdvlSPlqPGjBDLRu42++dhzTybddyTWyZKzTiNrnw5xBl0wZB/ALFmGc1HOCtRXfHeBzSepC+u572A9hWqUMcfDgwopIWMGFDFh84N/pykD5UXXAY2dALr57ED0fgrVVZkaN34PlM1eXNCNS6tpTvMb1WifF9W08wJfht/0dO37ceAX+DJduqCrDHa2udI+1dVOeoAzDFLR8oxkDSvH7hgF+P7K/sIY/f1Yya/+yB/1RA4ksLtGWf/J04M66NanWtIAYSenT3GyJKa5dWYZQzKaRmsnwvOypuCItSc8PZBFg0zqXdrF6lkQmSYcH03NulmZi7B0iagxchEvQ6E=
+  on:
+    tags: true
+  distributions: sdist bdist_wheel

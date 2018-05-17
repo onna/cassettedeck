@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
-import os
 from setuptools import find_packages, setup
-
-dir = os.path.dirname(__file__)
-
-reqs = open(os.path.join(dir, 'requirements.txt')).read()
-
-required = reqs.split()
 
 
 setup(
     name='cassettedeck',
-    version='1.0',
+    version='1.1',
     description='A library store and replay aiohttp requests',
     long_description='To simplify and speed up tests that make HTTP requests',
     author='Developer team at Onna Technologies',
@@ -30,5 +23,5 @@ setup(
     include_package_data=True,
     package_data={'': ['*.txt', '*.rst']},
     packages=find_packages(),
-    install_requires=required
+    install_requires=['aiohttp~=3.1.0', 'vcrpy==1.11.1']
 )
