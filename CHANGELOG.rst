@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.1.1
+-----
+
+ - Fixed a recursion bug when nesting `CassetteDeck` contexts
+
+
 1.1.0
 -----
 
