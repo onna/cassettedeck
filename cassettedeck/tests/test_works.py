@@ -19,7 +19,6 @@ async def download(url, data_type):
     async with aiohttp.ClientSession() as sess:
         async with sess.get(url) as resp:
             if str(resp.status).startswith('2'):
-                print(f"Correctly fetched {url}")
                 if data_type == 'text':
                     data = await resp.text()
                 elif data_type == 'binary':
@@ -43,8 +42,6 @@ async def test_simple(ctd):
 
         original = await download_text()
         cassette = await download_text()
-        assert original
-        assert cassette
         assert isinstance(original, str)
         assert isinstance(cassette, str)
         assert original == cassette
@@ -60,8 +57,6 @@ async def test_use_cassete(ctd):
 
         original = await download_text()
         cassette = await download_text()
-        assert original
-        assert cassette
         assert isinstance(original, str)
         assert isinstance(cassette, str)
         assert original == cassette
@@ -77,8 +72,6 @@ async def test_use_cassete_lib_dir(ctd_custom_dir):
 
         original = await download_text()
         cassette = await download_text()
-        assert original
-        assert cassette
         assert isinstance(original, str)
         assert isinstance(cassette, str)
         assert original == cassette

@@ -49,15 +49,14 @@ async def handle_request(self, method: str, url: str, params=None, data=None,
 
     if not resp:
         # Call original request if cassette wasn't there
-        logging.info(f"Doing [{method}] {url}")
         resp = await self._original_request(method, url,
                                             params=params, data=data,
                                             headers=headers, *args,
                                             **kwargs)
         # Store cassette
-        logging.info(f"Recording [{method}] {url}")
         await _cassette_store.store_response(method, url, params, data,
                                              headers, resp)
+        logging.info(f"Recording [{method}] {url}")
     else:
         logging.info(f"Loading from cassette [{method}] {url}")
 

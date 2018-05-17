@@ -77,14 +77,8 @@ class CassetteStore(object):
             # Create the request object
             request = vcr.request.Request(method, url, data, headers)
 
-            # Check if it's text
-            try:
-                data = await response.text()
-                data_type = 'text'
-            # Try with reading as a binary
-            except UnicodeDecodeError:
-                data = await response.read()
-                data_type = 'binary'
+            data_type = 'binary'
+            data = await response.read()
 
             # Create the vcr response as it will be stored
             vcr_response = {
@@ -151,8 +145,6 @@ class CassetteStore(object):
 
         # Get the data
         data = resp_json['body']['data']
-        if resp_json['body']['type'] == 'text':
-            data = data.encode('utf8')
 
         resp.content.feed_data(data)
         resp.content.feed_eof()
