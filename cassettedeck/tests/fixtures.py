@@ -5,7 +5,7 @@ from cassettedeck.deck import CassetteDeck
 
 
 @pytest.fixture(scope='function')
-def ctd():
+def ctd(caplog):
     yield CassetteDeck()
 
 

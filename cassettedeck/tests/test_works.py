@@ -1,6 +1,6 @@
 import pytest
 import aiohttp
-import os
+
 
 pytestmark = pytest.mark.asyncio
 
@@ -15,12 +15,12 @@ async def download_image():
     return await download(url, data_type='binary')
 
 
-async def download(url, data_type=None):
+async def download(url, data_type):
     async with aiohttp.ClientSession() as sess:
         async with sess.get(url) as resp:
             if str(resp.status).startswith('2'):
                 print(f"Correctly fetched {url}")
-                if not data_type or data_type == 'text':
+                if data_type == 'text':
                     data = await resp.text()
                 elif data_type == 'binary':
                     data = await resp.read()

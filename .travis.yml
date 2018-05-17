@@ -3,16 +3,13 @@ python:
 - 3.6
 sudo: required
 services:
-  - docker
-env:
-- CHANGE_MINIKUBE_NONE_USER=true DATABASE=postgres TEST_HIVE_IMAGE=hive_test_image
+- docker
 install:
-- pip install -r requirements.txt
 - pip install -r test-requirements.txt
 - python setup.py develop
 script:
+- pytest cassettedeck/tests/ -x -s --log-cli-level=info
 - flake8 cassettedeck --config=setup.cfg
-- pytest --cov=cassettedeck --cov-report=xml cassettedeck -s --tb=native
 after_success:
 - codecov
 - rm -rf *.egg-info

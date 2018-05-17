@@ -9,11 +9,10 @@ class CassetteDeck:
     """"""
 
     def __init__(self, cassette_library_dir=None, ignore_localhost=False,
-                 ignore_hosts=(), record_mode='once'):
+                 ignore_hosts=()):
         self.cassette_store = CassetteStore(cassette_library_dir=cassette_library_dir,  # noqa
                                             ignore_localhost=ignore_localhost,
-                                            ignore_hosts=ignore_hosts,
-                                            record_mode=record_mode)
+                                            ignore_hosts=ignore_hosts)
 
     @contextmanager
     def use_cassette(self, cassette):
