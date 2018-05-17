@@ -39,12 +39,9 @@ class CassetteDeck:
 
 
 async def handle_request(self, method: str, url: str, params=None, data=None,
-                         headers=None, *args, **kwargs):
+                         headers=None, _cassette_store=None, *args, **kwargs):
     """Return mocked response object or raise connection error."""
     # Attempt to build response from stored cassette
-    _cassette_store = kwargs['_cassette_store']
-    del kwargs['_cassette_store']
-
     resp = _cassette_store.build_response(method, url, params, data, headers)
 
     if not resp:
