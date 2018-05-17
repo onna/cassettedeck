@@ -22,9 +22,11 @@ class CassetteDeck:
             self.cassette_store.use_cassette(None)
 
     def __enter__(self):
-        # We put the original _request method in a new method _original_request
-        aiohttp.client.ClientSession._original_request = \
-            aiohttp.client.ClientSession._request
+        if not hasattr(aiohttp.client.ClientSession, '_original_request'):
+            # We put the original _request method in a new method _original_request
+            aiohttp.client.ClientSession._original_request = \
+                aiohttp.client.ClientSession._request
+
         # We replace the _request for our own request handler function
         aiohttp.client.ClientSession._request = functools.partialmethod(
             handle_request,
