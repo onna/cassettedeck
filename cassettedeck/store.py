@@ -1,8 +1,6 @@
 from multidict import CIMultiDict
 from vcr.errors import UnhandledHTTPRequestError
-from vcr.matchers import method
-from vcr.matchers import query
-from vcr.matchers import uri
+from vcr.matchers import method, query, uri, raw_body
 from yarl import URL
 from aiohttp import ClientResponse, StreamReader
 from aiohttp.helpers import TimerNoop
@@ -52,7 +50,7 @@ class CassetteStore(object):
         # Per-host cassettes unless self._cassette is specified
         name = self._cassette or URL(url).host
         path = os.path.join(self.library_dir, name)
-        cassette = vcr.cassette.Cassette(path, match_on=(uri, method, query))
+        cassette = vcr.cassette.Cassette(path, match_on=(uri, method, query, raw_body))
         cassette._load()
         return cassette
 

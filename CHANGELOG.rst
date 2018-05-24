@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.1.2
+-----
+
+ - Fixed loading cassettes with request matching the 'uri', 'method' and 'query' but not matching the 'body'
+
+
 1.1.1
 -----
 
