@@ -89,8 +89,9 @@ class CassetteStore(object):
                     'data': (data),
                     'type': data_type
                 },
-                'url': response.url,
+                'url': response.url.human_repr(),
             }
+
             # Store it and save
             cassette = self.load_cassette(url)
             cassette.append(request, vcr_response)
