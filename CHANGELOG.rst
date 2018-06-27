@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.1.3
+-----
+
+ - Allow different modes (all, once)
+ - Problem serializing URL
+
 1.1.2
 -----
 
@@ -26,4 +32,3 @@ Changelog
 -----
 
  - Initial commit [@lferran]
-
