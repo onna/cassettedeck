@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.1.4
+-----
+
+ - Query response using params too
+ - Cache the cassette so we dont need to deserialize for every request
+
 1.1.3
 -----
 

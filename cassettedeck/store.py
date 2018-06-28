@@ -5,6 +5,7 @@ from yarl import URL
 from aiohttp import ClientResponse, StreamReader
 from aiohttp.helpers import TimerNoop
 from unittest.mock import Mock
+import functools
 
 import collections
 import os.path
@@ -46,6 +47,7 @@ class CassetteStore(object):
     def library_dir(self, library_dir):
         self._library_dir = library_dir
 
+    @functools.lru_cache(maxsize=3)
     def load_cassette(self, url):
         # Per-host cassettes unless self._cassette is specified
         name = self._cassette or URL(url).host
@@ -73,6 +75,11 @@ class CassetteStore(object):
         # Only store those we don't skip
         if not self.skip(url):
             # Create the request object
+            if not data:
+                data = {}
+            if params:
+                data.update(params)
+
             request = vcr.request.Request(method, url, data, headers)
 
             data_type = 'binary'
@@ -108,6 +115,11 @@ class CassetteStore(object):
                 return None
 
             # Go check see if response is in cassette
+            if not data:
+                data = {}
+            if params:
+                data.update(params)
+
             request = vcr.request.Request(method, url, data, headers)
             cassette = self.load_cassette(url)
             resp_json = cassette.play_response(request)
