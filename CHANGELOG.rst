@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.5
+-----
+
+ - Problem serializing the request body
+
 1.1.4
 -----
 

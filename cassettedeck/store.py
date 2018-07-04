@@ -83,7 +83,7 @@ class CassetteStore(object):
             request = vcr.request.Request(method, url, data, headers)
 
             data_type = 'binary'
-            data = await response.read()
+            resp_data = await response.read()
 
             # Create the vcr response as it will be stored
             vcr_response = {
@@ -93,7 +93,7 @@ class CassetteStore(object):
                 },
                 'headers': dict(response.headers),
                 'body': {
-                    'data': (data),
+                    'data': (resp_data),
                     'type': data_type
                 },
                 'url': response.url.human_repr(),
@@ -102,7 +102,7 @@ class CassetteStore(object):
             # Store it and save
             cassette = self.load_cassette(url)
             cassette.append(request, vcr_response)
-            cassette._save()
+            cassette._save(force=True)
 
     def build_response(self, method, url, params, data, headers):
         """"""
