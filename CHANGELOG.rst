@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.6
+-----
+
+ - Problem with some method that has side effects everywhere!
+
 1.1.5
 -----
 
