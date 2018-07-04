@@ -5,8 +5,8 @@ from yarl import URL
 from aiohttp import ClientResponse, StreamReader
 from aiohttp.helpers import TimerNoop
 from unittest.mock import Mock
+import copy
 import functools
-
 import collections
 import os.path
 import vcr
@@ -20,7 +20,6 @@ class CassetteStore(object):
                  ignore_localhost=False, record_mode='once'):
         self._library_dir = None
         self._cassette = None
-
         self.library_dir = cassette_library_dir
         self.record_mode = record_mode
 
@@ -47,7 +46,7 @@ class CassetteStore(object):
     def library_dir(self, library_dir):
         self._library_dir = library_dir
 
-    @functools.lru_cache(maxsize=3)
+    @functools.lru_cache(maxsize=5)
     def load_cassette(self, url):
         # Per-host cassettes unless self._cassette is specified
         name = self._cassette or URL(url).host
@@ -65,10 +64,14 @@ class CassetteStore(object):
                 return True
         return False
 
-    async def store_response(self, method, url, params, data, headers,
+    async def store_response(self, method, url, params0, data0, headers0,
                              response):
         """This function is called for when we want to add a new record in the cassette
         """
+        params = copy.deepcopy(params0)
+        data = copy.deepcopy(data0)
+        headers = copy.deepcopy(headers0)
+
         if type(url) == URL:
             url = url.human_repr()
 
