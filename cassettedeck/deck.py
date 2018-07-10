@@ -1,5 +1,6 @@
 import aiohttp
 import functools
+import asyncio
 import logging
 from contextlib import contextmanager
 from cassettedeck.store import CassetteStore
@@ -54,8 +55,15 @@ async def handle_request(self, method: str, url: str, params=None, data=None,
                                             headers=headers, *args,
                                             **kwargs)
         # Store cassette
-        await _cassette_store.store_response(method, url, params, data,
-                                             headers, resp)
+        stored = await _cassette_store.store_response(method, url, params, data,
+                                                      headers, resp)
+
+        # Refill the buffer
+        if resp.content.is_eof():
+            content = asyncio.StreamReader()
+            content.feed_data(stored['body']['data'])
+            content.feed_eof()
+            resp.content = content
         logging.info(f"Recording [{method}] {url}")
     else:
         logging.info(f"Loading from cassette [{method}] {url}")

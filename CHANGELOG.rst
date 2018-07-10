@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.1.7
+-----
+
+ - When consuming the response content and serializing the returned response was at EOF.
+   Refill the buffer so it can be consumed again.
+
 1.1.6
 -----
 

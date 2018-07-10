@@ -107,6 +107,8 @@ class CassetteStore(object):
             cassette.append(request, vcr_response)
             cassette._save(force=True)
 
+            return vcr_response
+
     def build_response(self, method, url, params, data, headers):
         """"""
         try:
