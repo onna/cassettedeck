@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.8
+-----
+
+ - Fill the reason field in the response
+
 1.1.7
 -----
 

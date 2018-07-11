@@ -148,6 +148,7 @@ class CassetteStore(object):
 
         # Replicate status code and reason
         resp.status = resp_json['status']['code']
+        resp.reason = resp_json['status']['message']
 
         # Set default plain/text if no Content-Type
         try:
