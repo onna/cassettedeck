@@ -14,6 +14,12 @@ import vcr
 default_library = os.path.join(os.path.dirname(__file__), 'cassettes/')
 
 
+def authorization(r1, r2):
+    b1 = r1.headers.get('Authorization', '')
+    b2 = r2.headers.get('Authorization', '')
+    return b1 == b2
+
+
 class CassetteStore(object):
 
     def __init__(self, cassette_library_dir=None, ignore_hosts=(),
@@ -51,7 +57,7 @@ class CassetteStore(object):
         # Per-host cassettes unless self._cassette is specified
         name = self._cassette or URL(url).host
         path = os.path.join(self.library_dir, name)
-        cassette = vcr.cassette.Cassette(path, match_on=(uri, method, query, raw_body))
+        cassette = vcr.cassette.Cassette(path, match_on=(uri, method, query, raw_body, authorization))
         cassette._load()
         return cassette
 

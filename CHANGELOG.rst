@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.9
+-----
+
+ - Match on bearer token
+
 1.1.8
 -----
 
