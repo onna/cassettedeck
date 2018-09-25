@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.9
+-----
+
+ - Fix load_cassette() cache
+
 1.1.8
 -----
 
