@@ -117,7 +117,7 @@ class CassetteStore(object):
 
             # Check if we have to skip it
             if self.skip(url):
-                return None
+                return None, True
 
             # Go check see if response is in cassette
             if not data:
@@ -130,7 +130,7 @@ class CassetteStore(object):
             resp_json = cassette.play_response(request)
         except UnhandledHTTPRequestError:
             # Response not seen yet in cassette
-            return None
+            return None, False
 
         # Response was found in cassette
         cassette.play_counts = collections.Counter()
@@ -166,4 +166,4 @@ class CassetteStore(object):
         resp.content.feed_data(data)
         resp.content.feed_eof()
 
-        return resp
+        return resp, False
