@@ -4,7 +4,7 @@ Changelog
 1.1.10
 ------
 
-- Fix ignore localhost
+- Bugfix: return original response for ignored hosts [lferran]
 
 1.1.9
 -----
