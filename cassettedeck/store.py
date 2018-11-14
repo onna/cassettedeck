@@ -150,10 +150,10 @@ class CassetteStore(object):
             writer=Mock(),
             continue100=None,
             timer=TimerNoop(),
-            # traces=[],
-            # loop=Mock(),
-            # session=Mock(),
-            # auto_decompress=False
+            traces=[],
+            loop=Mock(),
+            session=Mock(),
+            auto_decompress=False
         )
         # Replicate status code and reason
         resp.status = resp_json['status']['code']
