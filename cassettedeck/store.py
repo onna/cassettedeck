@@ -14,14 +14,18 @@ default_library = os.path.join(os.path.dirname(__file__), 'cassettes/')
 
 
 class CassetteStore(object):
-
+    """This class wraps all logic related to cassettes, such as storing
+    new requests, building the replayed response, etc.
+    """
     def __init__(self, cassette_library_dir=None, ignore_hosts=(),
-                 ignore_localhost=False, record_mode='once'):
+                 ignore_localhost=False, record_mode='once',
+                 custom_matchers=None):
         self._library_dir = None
         self._cassette = None
         self._cassette_cache = {}
         self.library_dir = cassette_library_dir
         self.record_mode = record_mode
+        self.custom_matchers = custom_matchers or []
 
         # Default ignore
         self.ignore = set()
@@ -46,13 +50,25 @@ class CassetteStore(object):
     def library_dir(self, library_dir):
         self._library_dir = library_dir
 
+    @property
+    def match_on(self):
+        default = (uri, method, query, raw_body)
+        if not self.custom_matchers:
+            return default
+        is_list = isinstance(self.custom_matchers, list)
+        is_tuple = isinstance(self.custom_matchers, tuple)
+        is_iterable = is_list or is_tuple
+        if not is_iterable:
+            return (self.custom_matchers, )
+        return self.custom_matchers
+
     def load_cassette(self, url):
         # Per-host cassettes unless self._cassette is specified
         name = self._cassette or URL(url).host
         path = os.path.join(self.library_dir, name)
 
         if path not in self._cassette_cache:
-            cassette = vcr.cassette.Cassette(path, match_on=(uri, method, query, raw_body))
+            cassette = vcr.cassette.Cassette(path, match_on=self.match_on)
             cassette._load()
             self._cassette_cache[path] = cassette
 

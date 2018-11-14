@@ -7,7 +7,8 @@ from cassettedeck.store import CassetteStore
 
 
 class CassetteDeck:
-    """"""
+    """This is the object to use as a fixture in tests.
+    """
 
     def __init__(self, cassette_library_dir=None, ignore_localhost=False,
                  ignore_hosts=(), mode='once', mocked_services=None):
@@ -18,10 +19,15 @@ class CassetteDeck:
         self.mocked_services = mocked_services
 
     @contextmanager
-    def use_cassette(self, cassette, mode='once'):
+    def use_cassette(self, cassette, mode='once', custom_matchers=None):
         with self:
+            previous_custom_matchers = self.cassette_store.custom_matchers
+            if custom_matchers:
+                self.cassette_store.custom_matchers = custom_matchers
             self.cassette_store.use_cassette(cassette)
             yield self
+            # Restore state
+            self.cassette_store.custom_matchers = previous_custom_matchers
             self.cassette_store.use_cassette(None)
 
     def __enter__(self):
