@@ -146,3 +146,31 @@ async def test_mocked_services_work(ctd):
         assert resp.status == 200
         assert await resp.text() == 'foo'
         assert resp.headers.get('Content-Type') == 'text/plain'
+
+
+def CustomMatcher(r1, r2):
+    """This matcher will return the same response for all requests that
+    have 'hello' in the request body.
+    """
+    if 'hello' not in r1.body.decode():
+        return False
+
+    if 'hello' not in r2.body.decode():
+        return False
+    return True
+
+
+async def test_custom_matcher(ctd):
+    with ctd.use_cassette('test_custom_matcher',
+                          custom_matchers=[CustomMatcher]):
+        # Get the cassette
+        cassette = ctd.cassette_store.load_cassette('test_custom_matcher')
+        await echo_post('hello-my-friend')
+        await echo_post('byebye-my-friend')
+        await echo_post('adeu')
+        before = len(cassette.data)
+        # The number of stored responses should be the same as before,
+        # because the last request did not result in a new
+        # stored response
+        await echo_post('yes-yes-hello')
+        assert len(cassette.data) == before
