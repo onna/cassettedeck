@@ -21,10 +21,13 @@ class CassetteDeck:
     @contextmanager
     def use_cassette(self, cassette, mode='once', custom_matchers=None):
         with self:
-            self.cassette_store.custom_matchers = custom_matchers or []
+            previous_custom_matchers = self.cassette_store.custom_matchers
+            if custom_matchers:
+                self.cassette_store.custom_matchers = custom_matchers
             self.cassette_store.use_cassette(cassette)
             yield self
-            self.cassette_store.custom_matchers = None
+            # Restore state
+            self.cassette_store.custom_matchers = previous_custom_matchers
             self.cassette_store.use_cassette(None)
 
     def __enter__(self):
