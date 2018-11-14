@@ -1,5 +1,11 @@
 Changelog
 =========
+
+1.1.12
+------
+
+- Support custom matches [lferran]
+
 1.1.11
 ------
 
