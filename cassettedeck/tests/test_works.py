@@ -15,6 +15,13 @@ async def download_image():
     return await download(url, data_type='binary')
 
 
+async def echo_post(data):
+    url = 'https://postman-echo.com/post'
+    async with aiohttp.ClientSession() as sess:
+        async with sess.post(url, data=data) as resp:
+            return await resp.text()
+
+
 async def download(url, data_type):
     async with aiohttp.ClientSession() as sess:
         async with sess.get(url) as resp:
@@ -75,3 +82,19 @@ async def test_use_cassete_lib_dir(ctd_custom_dir):
         assert isinstance(original, str)
         assert isinstance(cassette, str)
         assert original == cassette
+
+
+async def test_use_cassete_cache(ctd):
+    with ctd.use_cassette('test_cassette_cache'):
+        req1 = await echo_post('hello')
+        req2 = await echo_post('world')
+        assert req1 != req2
+        assert isinstance(req1, str)
+        assert isinstance(req2, str)
+
+        # Trying again. We should get both values from the cache
+        req1 = await echo_post('hello')
+        req2 = await echo_post('world')
+        assert req1 != req2
+        assert isinstance(req1, str)
+        assert isinstance(req2, str)

@@ -5,9 +5,8 @@ from yarl import URL
 from aiohttp import ClientResponse, StreamReader
 from aiohttp.helpers import TimerNoop
 from unittest.mock import Mock
-import copy
-import functools
 import collections
+import copy
 import os.path
 import vcr
 
@@ -20,6 +19,7 @@ class CassetteStore(object):
                  ignore_localhost=False, record_mode='once'):
         self._library_dir = None
         self._cassette = None
+        self._cassette_cache = {}
         self.library_dir = cassette_library_dir
         self.record_mode = record_mode
 
@@ -46,14 +46,22 @@ class CassetteStore(object):
     def library_dir(self, library_dir):
         self._library_dir = library_dir
 
-    @functools.lru_cache(maxsize=5)
     def load_cassette(self, url):
         # Per-host cassettes unless self._cassette is specified
         name = self._cassette or URL(url).host
         path = os.path.join(self.library_dir, name)
-        cassette = vcr.cassette.Cassette(path, match_on=(uri, method, query, raw_body))
-        cassette._load()
-        return cassette
+
+        if path not in self._cassette_cache:
+            cassette = vcr.cassette.Cassette(path, match_on=(uri, method, query, raw_body))
+            cassette._load()
+            self._cassette_cache[path] = cassette
+
+        return self._cassette_cache[path]
+
+    def store_cassette(self, cassette):
+        cassette._save(force=True)
+        # Update cache
+        self._cassette_cache[cassette._path] = cassette
 
     def use_cassette(self, cassette=None):
         self._cassette = cassette
@@ -105,7 +113,7 @@ class CassetteStore(object):
             # Store it and save
             cassette = self.load_cassette(url)
             cassette.append(request, vcr_response)
-            cassette._save(force=True)
+            self.store_cassette(cassette)
 
             return vcr_response
 
