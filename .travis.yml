@@ -6,9 +6,9 @@ services:
 - docker
 install:
 - pip install -r test-requirements.txt
-- python setup.py develop
+- pip install -e .
 script:
-- pytest cassettedeck/tests/ -x -s --log-cli-level=info
+- pytest cassettedeck/tests/ -v -s --log-cli-level=info
 - flake8 cassettedeck --config=setup.cfg
 after_success:
 - codecov

@@ -125,7 +125,7 @@ class CassetteStore(object):
 
             # Check if we have to skip it
             if self.skip(url):
-                return None
+                return None, True
 
             # Go check see if response is in cassette
             if not data:
@@ -138,22 +138,23 @@ class CassetteStore(object):
             resp_json = cassette.play_response(request)
         except UnhandledHTTPRequestError:
             # Response not seen yet in cassette
-            return None
+            return None, False
 
         # Response was found in cassette
         cassette.play_counts = collections.Counter()
         # Create the response
-        resp = ClientResponse(method,
-                              URL(url),
-                              request_info=Mock(),
-                              writer=Mock(),
-                              continue100=None,
-                              timer=TimerNoop(),
-                              traces=[],
-                              loop=Mock(),
-                              session=Mock(),
-                              auto_decompress=False)
-
+        resp = ClientResponse(
+            method,
+            URL(url),
+            request_info=Mock(),
+            writer=Mock(),
+            continue100=None,
+            timer=TimerNoop(),
+            traces=[],
+            loop=Mock(),
+            session=Mock(),
+            auto_decompress=False,
+        )
         # Replicate status code and reason
         resp.status = resp_json['status']['code']
         resp.reason = resp_json['status']['message']
@@ -174,4 +175,4 @@ class CassetteStore(object):
         resp.content.feed_data(data)
         resp.content.feed_eof()
 
-        return resp
+        return resp, False

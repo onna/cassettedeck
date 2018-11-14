@@ -46,7 +46,7 @@ async def handle_request(self, method: str, url: str, params=None, data=None,
                          headers=None, _cassette_store=None, *args, **kwargs):
     """Return mocked response object or raise connection error."""
     # Attempt to build response from stored cassette
-    resp = _cassette_store.build_response(method, url, params, data, headers)
+    resp, skip = _cassette_store.build_response(method, url, params, data, headers)
 
     if not resp:
         # Call original request if cassette wasn't there
@@ -54,6 +54,10 @@ async def handle_request(self, method: str, url: str, params=None, data=None,
                                             params=params, data=data,
                                             headers=headers, *args,
                                             **kwargs)
+        if skip:
+            # Return original response, do not store the response
+            return resp
+
         # Store cassette
         stored = await _cassette_store.store_response(method, url, params, data,
                                                       headers, resp)

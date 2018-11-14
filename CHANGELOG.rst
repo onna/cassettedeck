@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.10
+------
+
+- Bugfix: return original response for ignored hosts [lferran]
+
 1.1.9
 -----
 
