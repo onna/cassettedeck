@@ -10,11 +10,12 @@ class CassetteDeck:
     """"""
 
     def __init__(self, cassette_library_dir=None, ignore_localhost=False,
-                 ignore_hosts=(), mode='once'):
+                 ignore_hosts=(), mode='once', mocked_services=None):
         self.cassette_store = CassetteStore(cassette_library_dir=cassette_library_dir,  # noqa
                                             ignore_localhost=ignore_localhost,
                                             ignore_hosts=ignore_hosts,
                                             record_mode=mode)
+        self.mocked_services = mocked_services
 
     @contextmanager
     def use_cassette(self, cassette, mode='once'):
@@ -32,7 +33,8 @@ class CassetteDeck:
         # We replace the _request for our own request handler function
         aiohttp.client.ClientSession._request = functools.partialmethod(
             handle_request,
-            _cassette_store=self.cassette_store
+            _cassette_store=self.cassette_store,
+            _mocked_services=self.mocked_services,
         )
         return self
 
@@ -42,9 +44,19 @@ class CassetteDeck:
             aiohttp.client.ClientSession._original_request
 
 
-async def handle_request(self, method: str, url: str, params=None, data=None,
-                         headers=None, _cassette_store=None, *args, **kwargs):
+async def handle_request(self, method: str, url: str, params=None,
+                         data=None, headers=None,
+                         _cassette_store=None, _mocked_services=None,
+                         *args, **kwargs):
     """Return mocked response object or raise connection error."""
+
+    # Check if url belongs to a mocked service
+    for service in _mocked_services or []:
+        if service.matches(str(url)):
+            return await service.build_response(
+                self, method, url, params=params, data=data,
+                headers=headers, *args, **kwargs)
+
     # Attempt to build response from stored cassette
     resp, skip = _cassette_store.build_response(method, url, params, data, headers)
 

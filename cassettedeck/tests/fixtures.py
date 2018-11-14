@@ -1,6 +1,6 @@
 import pytest
 import os
-
+from cassettedeck.service import BaseService
 from http.server import HTTPServer
 from http.server import BaseHTTPRequestHandler
 from multiprocessing import Process
@@ -10,7 +10,11 @@ from cassettedeck.deck import CassetteDeck
 
 @pytest.fixture(scope='function')
 def ctd():
-    yield CassetteDeck()
+    yield CassetteDeck(
+        mocked_services=[
+            MockedService(),
+        ],
+    )
 
 
 @pytest.fixture(scope='function')
@@ -29,6 +33,19 @@ def ctd_ignore_localhost(local_server):
     yield CassetteDeck(
         ignore_localhost=True,
     )
+
+
+class MockedService(BaseService):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self.server = 'http://mocked.service.com'
+        self.treasure = 'foo'
+
+    def matches(self, url):
+        return url.startswith(self.server)
+
+    async def get_the_treasure(self, params=None, data=None, headers={}):
+        return 200, self.treasure, 'text/plain'
 
 
 @pytest.fixture(scope='function')

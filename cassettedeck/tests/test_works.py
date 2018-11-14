@@ -30,6 +30,12 @@ async def calling_localhost():
             return await resp.text()
 
 
+async def calling_mocked_service(path):
+    url = os.path.join('http://mocked.service.com', path)
+    async with aiohttp.ClientSession() as s, s.get(url) as resp:
+        return resp
+
+
 async def download(url, data_type):
     async with aiohttp.ClientSession() as sess:
         async with sess.get(url) as resp:
@@ -132,3 +138,11 @@ async def test_ingore_localhost_works(ctd_ignore_localhost):
         with open(os.path.join(library_dir, cassette), 'r') as f:
             ep = f.read()
             assert 'postman-echo.com' in ep
+
+
+async def test_mocked_services_work(ctd):
+    with ctd.use_cassette('test_mocked_services'):
+        resp = await calling_mocked_service('get_the_treasure')
+        assert resp.status == 200
+        assert await resp.text() == 'foo'
+        assert resp.headers.get('Content-Type') == 'text/plain'

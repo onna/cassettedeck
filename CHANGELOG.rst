@@ -1,5 +1,9 @@
 Changelog
 =========
+1.1.11
+------
+
+- Support mocked services [lferran]
 
 1.1.10
 ------
