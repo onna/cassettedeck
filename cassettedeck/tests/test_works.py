@@ -1,5 +1,6 @@
 import pytest
 import aiohttp
+import os
 
 
 pytestmark = pytest.mark.asyncio
@@ -110,5 +111,19 @@ async def test_use_cassete_cache(ctd):
 async def test_ingore_localhost_works(ctd_ignore_localhost):
     with ctd_ignore_localhost.use_cassette('localhost_ignored'):
         await calling_localhost()
-        # TODO: Check that request was not stored in cassette
-        pass
+        # Check that request was not stored in cassette
+        assert not ctd_ignore_localhost.cassette_store._cassette_cache
+        try:
+            library_dir = ctd_ignore_localhost.cassette_store.library_dir
+            cassette = ctd_ignore_localhost.cassette_store._cassette
+            with open(os.path.join(library_dir, cassette), 'r') as f:
+                ep = f.read()
+                assert 'localhost' not in ep
+        except Exception as e:
+            assert isinstance(e, FileNotFoundError)
+
+        await echo_post('hello')
+        assert ctd_ignore_localhost.cassette_store._cassette_cache
+        with open(os.path.join(library_dir, cassette), 'r') as f:
+            ep = f.read()
+            assert 'postman-echo.com' in ep
