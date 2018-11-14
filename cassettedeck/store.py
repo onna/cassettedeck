@@ -143,17 +143,18 @@ class CassetteStore(object):
         # Response was found in cassette
         cassette.play_counts = collections.Counter()
         # Create the response
-        resp = ClientResponse(method,
-                              URL(url),
-                              request_info=Mock(),
-                              writer=Mock(),
-                              continue100=None,
-                              timer=TimerNoop(),
-                              traces=[],
-                              loop=Mock(),
-                              session=Mock(),
-                              auto_decompress=False)
-
+        resp = ClientResponse(
+            method,
+            URL(url),
+            request_info=Mock(),
+            writer=Mock(),
+            continue100=None,
+            timer=TimerNoop(),
+            # traces=[],
+            # loop=Mock(),
+            # session=Mock(),
+            # auto_decompress=False
+        )
         # Replicate status code and reason
         resp.status = resp_json['status']['code']
         resp.reason = resp_json['status']['message']

@@ -22,6 +22,13 @@ async def echo_post(data):
             return await resp.text()
 
 
+async def calling_localhost():
+    url = 'http://localhost:8080/foo/bar'
+    async with aiohttp.ClientSession() as sess:
+        async with sess.get(url) as resp:
+            return await resp.text()
+
+
 async def download(url, data_type):
     async with aiohttp.ClientSession() as sess:
         async with sess.get(url) as resp:
@@ -98,3 +105,10 @@ async def test_use_cassete_cache(ctd):
         assert req1 != req2
         assert isinstance(req1, str)
         assert isinstance(req2, str)
+
+
+async def test_ingore_localhost_works(ctd_ignore_localhost):
+    with ctd_ignore_localhost.use_cassette('localhost_ignored'):
+        await calling_localhost()
+        # TODO: Check that request was not stored in cassette
+        pass

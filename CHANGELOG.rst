@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.10
+------
+
+- Fix ignore localhost
+
 1.1.9
 -----
 
