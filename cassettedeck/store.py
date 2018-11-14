@@ -54,6 +54,12 @@ class CassetteStore(object):
         default = (uri, method, query, raw_body)
         if not self.custom_matchers:
             return default
+
+        is_list = isinstance(self.custom_matchers, list)
+        is_tuple = isinstance(self.custom_matchers, tuple)
+        is_iterable = is_list or is_tuple
+        if not is_iterable:
+            return (self.custom_matchers, )
         return self.custom_matchers
 
     def load_cassette(self, url):
