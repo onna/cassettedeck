@@ -111,6 +111,7 @@ async def test_use_cassete_cache(ctd):
 async def test_ingore_localhost_works(ctd_ignore_localhost):
     with ctd_ignore_localhost.use_cassette('localhost_ignored'):
         await calling_localhost()
+
         # Check that request was not stored in cassette
         assert not ctd_ignore_localhost.cassette_store._cassette_cache
         try:
@@ -118,10 +119,14 @@ async def test_ingore_localhost_works(ctd_ignore_localhost):
             cassette = ctd_ignore_localhost.cassette_store._cassette
             with open(os.path.join(library_dir, cassette), 'r') as f:
                 ep = f.read()
+                # If cassette file exists, localhost should not be
+                # present!
                 assert 'localhost' not in ep
         except Exception as e:
+            # Cassette file does not exist
             assert isinstance(e, FileNotFoundError)
 
+        # Not ignored hosts should be recorded
         await echo_post('hello')
         assert ctd_ignore_localhost.cassette_store._cassette_cache
         with open(os.path.join(library_dir, cassette), 'r') as f:

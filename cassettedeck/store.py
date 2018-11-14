@@ -153,7 +153,7 @@ class CassetteStore(object):
             traces=[],
             loop=Mock(),
             session=Mock(),
-            auto_decompress=False
+            auto_decompress=False,
         )
         # Replicate status code and reason
         resp.status = resp_json['status']['code']
