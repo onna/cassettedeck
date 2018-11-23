@@ -33,7 +33,10 @@ async def calling_localhost():
 async def calling_mocked_service(path):
     url = os.path.join('http://mocked.service.com', path)
     async with aiohttp.ClientSession() as s, s.get(url) as resp:
-        return resp
+        assert resp.status is 200
+        assert resp.headers.get('Content-Type') == 'text/plain'
+        result = await resp.text()
+        return result
 
 
 async def download(url, data_type):
@@ -142,10 +145,8 @@ async def test_ingore_localhost_works(ctd_ignore_localhost):
 
 async def test_mocked_services_work(ctd):
     with ctd.use_cassette('test_mocked_services'):
-        resp = await calling_mocked_service('get_the_treasure')
-        assert resp.status == 200
-        assert await resp.text() == 'foo'
-        assert resp.headers.get('Content-Type') == 'text/plain'
+        result = await calling_mocked_service('get_the_treasure')
+        assert result == 'foo'
 
 
 def CustomMatcher(r1, r2):

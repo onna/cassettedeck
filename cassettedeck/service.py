@@ -42,7 +42,6 @@ class BaseService:
             traces=[],
             loop=Mock(),
             session=Mock(),
-            auto_decompress=False,
         )
         func_name = '_'.join(url_parts[-2:])
         func = None
@@ -64,7 +63,7 @@ class BaseService:
             ct = 'application/json'
             data = '{}'
 
-        resp.headers = CIMultiDict({hdrs.CONTENT_TYPE: ct})
+        resp._headers = CIMultiDict({hdrs.CONTENT_TYPE: ct})
         loop = asyncio.get_event_loop()
         protocol = Mock(_reading_paused=False)
         resp.content = StreamReader(protocol, loop=loop)

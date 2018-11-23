@@ -169,7 +169,6 @@ class CassetteStore(object):
             traces=[],
             loop=Mock(),
             session=Mock(),
-            auto_decompress=False,
         )
         # Replicate status code and reason
         resp.status = resp_json['status']['code']
@@ -182,7 +181,7 @@ class CassetteStore(object):
             resp_json['headers']['Content-Type'] = 'plain/text'
 
         # Set headers and content
-        resp.headers = CIMultiDict(resp_json['headers'])
+        resp._headers = CIMultiDict(resp_json['headers'])
         resp.content = StreamReader(Mock())
 
         # Get the data
