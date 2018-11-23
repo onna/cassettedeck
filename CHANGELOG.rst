@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.0.0
+-----
+
+- Upgraded to aiohttp >= 3.4.4 [lferran]
+
 1.1.12
 ------
 
