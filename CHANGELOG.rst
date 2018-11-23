@@ -1,6 +1,17 @@
 Changelog
 =========
 
+1.1.13
+------
+
+- Support config option to only match on mocked services
+
+- Improve the way we store original request, so we don't collide when
+  using various CassetteDecks
+
+[lferran]
+
+
 1.1.12
 ------
 
