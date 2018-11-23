@@ -2,6 +2,8 @@ import aiohttp
 import functools
 import asyncio
 import logging
+import uuid
+
 from contextlib import contextmanager
 from cassettedeck.store import CassetteStore
 
@@ -10,13 +12,20 @@ class CassetteDeck:
     """This is the object to use as a fixture in tests.
     """
 
-    def __init__(self, cassette_library_dir=None, ignore_localhost=False,
-                 ignore_hosts=(), mode='once', mocked_services=None):
+    def __init__(self, cassette_library_dir=None,
+                 ignore_localhost=False, ignore_hosts=(), mode='once',
+                 mocked_services=None, only_mocks=False):
         self.cassette_store = CassetteStore(cassette_library_dir=cassette_library_dir,  # noqa
                                             ignore_localhost=ignore_localhost,
                                             ignore_hosts=ignore_hosts,
                                             record_mode=mode)
         self.mocked_services = mocked_services
+        self.only_mocks = only_mocks
+        self.uuid = uuid.uuid4().hex
+
+    @property
+    def store_original(self):
+        return store_original(self.uuid)
 
     @contextmanager
     def use_cassette(self, cassette, mode='once', custom_matchers=None):
@@ -31,30 +40,42 @@ class CassetteDeck:
             self.cassette_store.use_cassette(None)
 
     def __enter__(self):
-        if not hasattr(aiohttp.client.ClientSession, '_original_request'):
-            # We put the original _request method in a new method _original_request
-            aiohttp.client.ClientSession._original_request = \
-                aiohttp.client.ClientSession._request
+        if not hasattr(aiohttp.client.ClientSession, self.store_original):
+            # We put the original _request method in a new method
+            setattr(aiohttp.client.ClientSession, self.store_original,
+                    aiohttp.client.ClientSession._request)
 
         # We replace the _request for our own request handler function
         aiohttp.client.ClientSession._request = functools.partialmethod(
             handle_request,
             _cassette_store=self.cassette_store,
             _mocked_services=self.mocked_services,
+            _only_mocks=self.only_mocks,
+            _uuid=self.uuid,
         )
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # We set it back to the original function
-        aiohttp.client.ClientSession._request = \
-            aiohttp.client.ClientSession._original_request
+        original = getattr(aiohttp.client.ClientSession, self.store_original)
+        aiohttp.client.ClientSession._request = original
+
+
+def store_original(uuid):
+    # Returns the name of the method where we stored the original
+    # request
+    return f'_original_request_{uuid}'
 
 
 async def handle_request(self, method: str, url: str, params=None,
                          data=None, headers=None,
                          _cassette_store=None, _mocked_services=None,
-                         *args, **kwargs):
+                         _only_mocks=False, _uuid=None, *args,
+                         **kwargs):
     """Return mocked response object or raise connection error."""
+
+    # Fetch original aiohttp client request
+    _original_request = getattr(self, store_original(_uuid))
 
     # Check if url belongs to a mocked service
     for service in _mocked_services or []:
@@ -63,15 +84,22 @@ async def handle_request(self, method: str, url: str, params=None,
                 self, method, url, params=params, data=data,
                 headers=headers, *args, **kwargs)
 
+    if _only_mocks:
+        # Do the original request
+        return await _original_request(method, url,
+                                       params=params, data=data,
+                                       headers=headers, *args,
+                                       **kwargs)
+
     # Attempt to build response from stored cassette
     resp, skip = _cassette_store.build_response(method, url, params, data, headers)
 
     if not resp:
         # Call original request if cassette wasn't there
-        resp = await self._original_request(method, url,
-                                            params=params, data=data,
-                                            headers=headers, *args,
-                                            **kwargs)
+        resp = await _original_request(method, url,
+                                       params=params, data=data,
+                                       headers=headers, *args,
+                                       **kwargs)
         if skip:
             # Return original response, do not store the response
             return resp
