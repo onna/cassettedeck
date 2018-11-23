@@ -52,3 +52,14 @@ class MockedService(BaseService):
 def ctd_custom_dir():
     cassettes_folder = os.path.join(os.path.curdir, f'stored_requests')
     yield CassetteDeck(cassette_library_dir=cassettes_folder)
+
+
+@pytest.fixture(scope='function')
+def ctd_only_mocked_services(local_server):
+    # Yield cassettedeck
+    yield CassetteDeck(
+        mocked_services=[
+            MockedService(),
+        ],
+        only_mocks=True,
+    )

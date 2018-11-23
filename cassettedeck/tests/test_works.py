@@ -174,3 +174,24 @@ async def test_custom_matcher(ctd):
         # stored response
         await echo_post('yes-yes-hello')
         assert len(cassette.data) == before
+
+
+async def test_only_mocked_should_not_store_responses(ctd_only_mocked_services):
+    ctd = ctd_only_mocked_services
+    cassette_name = 'test_only_mocked'
+    with ctd.use_cassette(cassette_name):
+        # Get cassette object first
+        cassette = ctd.cassette_store.load_cassette(cassette_name)
+
+        # Check that mocked response is ok
+        resp = await calling_mocked_service('get_the_treasure')
+        assert resp.status == 200
+        assert await resp.text() == 'foo'
+
+        # Check that response was not stored
+        assert len(cassette.data) is 0
+
+        # Call another server and check that response was not stored
+        # either
+        await echo_post('hello-my-friend')
+        assert len(cassette.data) is 0
