@@ -175,12 +175,6 @@ class CassetteStore(object):
         resp.status = resp_json['status']['code']
         resp.reason = resp_json['status']['message']
 
-        # Set default plain/text if no Content-Type
-        try:
-            resp_json['headers']['Content-Type']
-        except KeyError:
-            resp_json['headers']['Content-Type'] = 'plain/text'
-
         # Set headers and content
         resp.headers = CIMultiDict(resp_json['headers'])
         resp.content = StreamReader(Mock())

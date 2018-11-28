@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.13
+------
+
+- remove content-type injection in stored data
+
 1.1.12
 ------
 
