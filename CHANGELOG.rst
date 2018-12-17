@@ -1,10 +1,15 @@
 Changelog
 =========
 
-1.1.13
+2.0.1
 ------
 
 - remove content-type injection in stored data
+
+2.0.0
+-----
+
+- Upgraded to aiohttp >= 3.4.4 [lferran]
 
 1.1.12
 ------
