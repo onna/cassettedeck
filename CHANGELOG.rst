@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.0.2
+-----
+
+- Pin aiohttp to >=3.4 <3.6
+- Solve flake8 warnings
+
 2.0.1
 ------
 
