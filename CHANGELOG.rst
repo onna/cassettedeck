@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.0.3
+-----
+
+- relax several requirements
+- add a simple makefile
+
 2.0.2
 -----
 
