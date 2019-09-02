@@ -5,8 +5,8 @@ sudo: required
 services:
 - docker
 install:
-- pip install -r test-requirements.txt
-- pip install -e .
+- pip install -Ur test-requirements.txt
+- pip install -Ue .
 script:
 - pytest cassettedeck/tests/ -v -s --log-cli-level=info
 - flake8 cassettedeck --config=setup.cfg
