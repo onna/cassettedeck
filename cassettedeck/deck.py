@@ -7,8 +7,6 @@ from cassettedeck.store import CassetteStore
 
 
 class CassetteDeck:
-    """This is the object to use as a fixture in tests.
-    """
 
     def __init__(self, cassette_library_dir=None, ignore_localhost=False,
                  ignore_hosts=(), mode='once', mocked_services=None):
