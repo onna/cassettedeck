@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.1.0
+-----
+
+- add generic VCR function to help with test implementation
+
 2.0.3
 -----
 
