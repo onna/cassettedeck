@@ -176,7 +176,7 @@ class CassetteStore(object):
 
         # Set headers and content
         resp._headers = CIMultiDict(resp_json['headers'])
-        resp.content = StreamReader(Mock())
+        resp.content = StreamReader(Mock(), limit=2 ** 16)
 
         # Get the data
         data = resp_json['body']['data']

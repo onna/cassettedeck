@@ -66,7 +66,7 @@ class BaseService:
         resp._headers = CIMultiDict({hdrs.CONTENT_TYPE: ct})
         loop = asyncio.get_event_loop()
         protocol = Mock(_reading_paused=False)
-        resp.content = StreamReader(protocol, loop=loop)
+        resp.content = StreamReader(protocol, loop=loop, limit=2 ** 16)
         if isinstance(data, str):
             data = data.encode('utf8')
         resp.content.feed_data(data)

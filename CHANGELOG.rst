@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.1.1
+-----
+
+- Add required parameter to streamreader
+
 2.1.0
 -----
 
