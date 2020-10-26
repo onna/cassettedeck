@@ -5,6 +5,7 @@ from yarl import URL
 from aiohttp import hdrs
 from aiohttp.helpers import TimerNoop
 from unittest.mock import Mock
+from cassettedeck.store import DEFAULT_STREAM_LIMIT
 import json
 import asyncio
 
@@ -66,7 +67,7 @@ class BaseService:
         resp._headers = CIMultiDict({hdrs.CONTENT_TYPE: ct})
         loop = asyncio.get_event_loop()
         protocol = Mock(_reading_paused=False)
-        resp.content = StreamReader(protocol, loop=loop, limit=2 ** 16)
+        resp.content = StreamReader(protocol, loop=loop, limit=DEFAULT_STREAM_LIMIT)
         if isinstance(data, str):
             data = data.encode('utf8')
         resp.content.feed_data(data)

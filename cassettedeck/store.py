@@ -12,6 +12,8 @@ import vcr
 
 default_library = os.path.join(os.path.dirname(__file__), 'cassettes/')
 
+DEFAULT_STREAM_LIMIT = 6 ** 16
+
 
 class CassetteStore(object):
     """This class wraps all logic related to cassettes, such as storing
@@ -176,7 +178,7 @@ class CassetteStore(object):
 
         # Set headers and content
         resp._headers = CIMultiDict(resp_json['headers'])
-        resp.content = StreamReader(Mock(), limit=2 ** 16)
+        resp.content = StreamReader(Mock(), limit=DEFAULT_STREAM_LIMIT)
 
         # Get the data
         data = resp_json['body']['data']
