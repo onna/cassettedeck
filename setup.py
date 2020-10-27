@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='cassettedeck',
-    version='2.1.1',
+    version='2.1.2',
     description='A library store and replay aiohttp requests',
     long_description='To simplify and speed up tests that make HTTP requests',
     author='Developer team at Onna Technologies',
