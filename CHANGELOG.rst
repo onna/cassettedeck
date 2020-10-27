@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.1.2
+-----
+
+- Fix flake8 error
+
 2.1.1
 -----
 
