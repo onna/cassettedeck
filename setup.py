@@ -26,7 +26,7 @@ setup(
     install_requires=[
         'aiohttp',
         "aiounittest",
-        'vcrpy',
+        'vcrpy==1.12.0',
         'pyyaml',
     ],
 )
