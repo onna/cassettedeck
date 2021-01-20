@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="cassettedeck",
-    version='2.2.0',
+    version="2.2.0",
     description="A library store and replay aiohttp requests",
     long_description="To simplify and speed up tests that make HTTP requests",
     author="Developer team at Onna Technologies",
@@ -24,9 +24,9 @@ setup(
     package_data={"": ["*.txt", "*.rst"]},
     packages=find_packages(),
     install_requires=[
-        'aiohttp',
+        "aiohttp",
         "aiounittest",
-        'vcrpy==1.12.0',
-        'pyyaml',
+        "vcrpy==1.12.0",
+        "pyyaml",
     ],
 )
