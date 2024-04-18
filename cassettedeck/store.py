@@ -85,10 +85,7 @@ class CassetteStore(object):
         self._cassette = cassette
 
     def skip(self, url):
-        for ignore in self.ignore:
-            if ignore in url:
-                return True
-        return False
+        return any(ignore in url for ignore in self.ignore)
 
     async def store_response(self, method, url, params0, data0, headers0,
                              response):
@@ -160,17 +157,20 @@ class CassetteStore(object):
 
         # Response was found in cassette
         cassette.play_counts = collections.Counter()
+        session = Mock()
+        session._resolve_charset = Mock(return_value="utf-8")
+        
         # Create the response
         resp = ClientResponse(
             method,
             URL(url),
             request_info=Mock(),
-            writer=Mock(),
+            writer=None,
             continue100=None,
             timer=TimerNoop(),
             traces=[],
             loop=Mock(),
-            session=Mock(),
+            session=session,
         )
         # Replicate status code and reason
         resp.status = resp_json['status']['code']
