@@ -33,17 +33,20 @@ class BaseService:
 
         if data is None and 'json' in kwargs:
             data = json.dumps(kwargs['json'])
+        session = Mock()
+        session._resolve_charset = Mock(return_value="utf-8")
+
         resp = ClientResponse(
             method,
             url,
             request_info=Mock(),
-            writer=Mock(),
+            writer=None,
             continue100=None,
             timer=TimerNoop(),
             traces=[],
             loop=Mock(),
-            session=Mock(),
-        )
+            session=session)
+        
         func_name = '_'.join(url_parts[-2:])
         func = None
         if hasattr(self, func_name):

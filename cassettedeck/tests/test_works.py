@@ -32,11 +32,10 @@ async def calling_localhost():
 
 async def calling_mocked_service(path):
     url = os.path.join('http://mocked.service.com', path)
-    async with aiohttp.ClientSession() as s, s.get(url) as resp:
+    async with (aiohttp.ClientSession() as s, s.get(url) as resp):
         assert resp.status == 200
         assert resp.headers.get('Content-Type') == 'text/plain'
-        result = await resp.text()
-        return result
+        return await resp.text()
 
 
 async def download(url, data_type):

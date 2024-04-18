@@ -8,3 +8,6 @@
 *.egg-info/
 venv/
 stored_requests/
+.tool-versions
+.vscode/launch.json
+.vscode/settings.json

@@ -1,5 +1,9 @@
 Changelog
 =========
+3.0.0
+-----
+
+- Make it compatible with aiohttp > 3.6
 
 2.2.0
 -----
